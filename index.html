@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>스터디룸 기록실</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+<style>
+:root{
+  --bg:#f6f7f9; --panel:#fff; --panel-2:#fbfcfd; --line:#e3e6ea;
+  --text:#1c2024; --muted:#6b7480; --accent:#3b6fd4; --accent-soft:#e8effb;
+  --good:#2f9e63; --warn:#d98324; --bad:#d1495b;
+  --r:14px; --shadow:0 1px 2px rgba(16,24,40,.05),0 6px 18px rgba(16,24,40,.05);
+}
+html[data-theme="dark"]{
+  --bg:#14171b; --panel:#1c2026; --panel-2:#21262d; --line:#2c333b;
+  --accent-soft:#1e2a3d; --good:#4cc38a; --warn:#e8a33d; --bad:#e2657a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",
+    "Malgun Gothic",system-ui,sans-serif;
+  -webkit-text-size-adjust:100%; line-height:1.55;
+}
+a{color:var(--accent)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px 64px}
+
+/* ── 헤더 ── */
+header{
+  position:sticky; top:0; z-index:40; background:var(--panel);
+  border-bottom:1px solid var(--line); backdrop-filter:saturate(180%) blur(8px);
+}
+.hd{max-width:1080px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:10px}
+.brand{font-weight:700;font-size:17px;letter-spacing:-.2px;display:flex;align-items:center;gap:8px}
+.brand small{font-weight:500;color:var(--muted);font-size:12px}
+.hd-sp{flex:1}
+.iconbtn{
+  border:1px solid var(--line);background:var(--panel-2);color:var(--text);
+  border-radius:10px;padding:7px 11px;font-size:13px;cursor:pointer;line-height:1;
+}
+.iconbtn:hover{border-color:var(--accent)}
+.iconbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+nav.tabs{max-width:1080px;margin:0 auto;padding:0 10px;display:flex;gap:2px;overflow-x:auto;
+  scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{
+  background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);
+  padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;
+}
+nav.tabs button.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ── 공통 ── */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);padding:16px;margin-top:14px}
+.card h2{margin:0 0 4px;font-size:15px;letter-spacing:-.2px}
+.card .sub{color:var(--muted);font-size:12.5px;margin-bottom:12px}
+.grid{display:grid;gap:12px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:760px){.g4{grid-template-columns:repeat(2,1fr)}.g3,.g2{grid-template-columns:1fr}}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;
+  box-shadow:var(--shadow)}
+.stat .k{color:var(--muted);font-size:12px;font-weight:600}
+.stat .v{font-size:22px;font-weight:700;margin-top:4px;letter-spacing:-.5px}
+.stat .d{color:var(--muted);font-size:11.5px;margin-top:2px}
+
+.seg{display:inline-flex;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+  padding:2px;gap:2px;flex-wrap:wrap}
+.seg button{background:none;border:none;color:var(--muted);padding:6px 11px;border-radius:8px;
+  font-size:13px;font-weight:600;cursor:pointer}
+.seg button.active{background:var(--accent);color:#fff}
+
+input,select,textarea{
+  background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+  border-radius:10px;padding:9px 11px;font-size:14px;font-family:inherit;width:100%;
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 16px;
+  font-size:14px;font-weight:600;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:var(--panel-2);color:var(--text);border:1px solid var(--line)}
+.btn.danger{background:var(--bad)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:9px 8px;text-align:left;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;user-select:none;white-space:nowrap}
+th.no{cursor:default}
+tbody tr:hover{background:var(--panel-2)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.rank{width:34px;font-weight:700;color:var(--muted);text-align:center}
+.rank.m1{color:#d4a017}.rank.m2{color:#8c9199}.rank.m3{color:#b07a4a}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.b5{background:#dcf1f5;color:#0d6a80}
+.b4{background:#fde3e6;color:#a52a3a}
+.b3{background:#fde1ef;color:#a4306c}
+.b2{background:#dcf3e4;color:#1d6b41}
+.b1{background:#fdf0d5;color:#8a6516}
+html[data-theme="dark"] .b5{background:#123b45;color:#7fd4e8}
+html[data-theme="dark"] .b4{background:#43202a;color:#f2a6b3}
+html[data-theme="dark"] .b3{background:#40203a;color:#f0a5cd}
+html[data-theme="dark"] .b2{background:#1a3b2a;color:#8ddcae}
+html[data-theme="dark"] .b1{background:#3d3418;color:#e9cd7c}
+
+.name{font-weight:600;cursor:pointer}
+.name:hover{color:var(--accent);text-decoration:underline}
+.muted{color:var(--muted)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px}
+.hashcell{color:var(--muted);word-break:break-all}
+
+.bar{height:7px;background:var(--panel-2);border-radius:99px;overflow:hidden;margin-top:5px}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:99px}
+
+.empty{text-align:center;color:var(--muted);padding:36px 10px;font-size:14px}
+.spinner{width:18px;height:18px;border:2px solid var(--line);border-top-color:var(--accent);
+  border-radius:50%;animation:sp .8s linear infinite;display:inline-block;vertical-align:-3px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 12px;
+  border-radius:0 10px 10px 0;font-size:13px;margin-top:10px}
+.note.bad{border-color:var(--bad);background:transparent;color:var(--bad)}
+.note.good{border-color:var(--good);background:transparent;color:var(--good)}
+
+/* ── 모달 ── */
+.mask{position:fixed;inset:0;background:rgba(10,14,20,.5);display:none;z-index:80;
+  align-items:center;justify-content:center;padding:16px}
+.mask.show{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  max-width:640px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-hd{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line);
+  padding:14px 16px;display:flex;align-items:center;gap:10px}
+.modal-bd{padding:16px}
+.x{margin-left:auto;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;
+  line-height:1;padding:0 4px}
+
+svg.chart{width:100%;height:auto;display:block;overflow:visible}
+.chart text{font-size:9px;fill:var(--muted)}
+.chart rect.b{fill:var(--accent)}
+.chart rect.b.zero{fill:var(--line)}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart path.ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.chart .area{fill:var(--accent);opacity:.12}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px}
+.kv .k{color:var(--muted)}
+.kv .v{text-align:right;font-variant-numeric:tabular-nums}
+
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:28px 10px}
+.hide{display:none !important}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <div class="brand">📚 스터디룸 기록실 <small id="hdSub">불러오는 중</small></div>
+    <div class="hd-sp"></div>
+    <button class="iconbtn" id="btnTheme" title="화면 밝기 전환">🌙</button>
+    <button class="iconbtn" id="btnReload" title="새로고침">↻</button>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-t="home" class="active">홈</button>
+    <button data-t="rank">랭킹</button>
+    <button data-t="members">멤버</button>
+    <button data-t="trend">추이</button>
+    <button data-t="compare">비교</button>
+    <button data-t="admin">관리</button>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div id="banner"></div>
+
+  <!-- ══ 홈 ══ -->
+  <section id="v-home">
+    <div class="grid g4" id="homeStats" style="margin-top:14px"></div>
+
+    <div class="card">
+      <h2>오늘의 공부</h2>
+      <div class="sub" id="homeTodaySub">기준 시각 오전 5시</div>
+      <div id="homeToday"></div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card">
+        <h2>최근 14일 전체 공부시간</h2>
+        <div class="sub">방 전체 합계</div>
+        <div id="homeChart"></div>
+      </div>
+      <div class="card">
+        <h2>XP 상위</h2>
+        <div class="sub">누적 기준</div>
+        <div id="homeXp"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>이번 주 활동</h2>
+      <div class="sub">최근 7일 공부시간 · 채팅 · 출석</div>
+      <div id="homeWeek"></div>
+    </div>
+  </section>
+
+  <!-- ══ 랭킹 ══ -->
+  <section id="v-rank" class="hide">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div class="seg" id="rankKind">
+          <button data-k="xp" class="active">XP</button>
+          <button data-k="study">공부시간</button>
+          <button data-k="chat">채팅</button>
+          <button data-k="cert">인증 횟수</button>
+          <button data-k="attend">출석</button>
+        </div>
+        <div class="seg" id="rankRange">
+          <button data-r="today">오늘</button>
+          <button data-r="7">7일</button>
+          <button data-r="30">30일</button>
+          <button data-r="all" class="active">누적</button>
+        </div>
+      </div>
+      <div style="margin-top:10px"><input id="rankSearch" placeholder="닉네임 검색"></div>
+      <div id="rankBody" style="margin-top:6px"></div>
+    </div>
+  </section>
+
+  <!-- ══ 멤버 ══ -->
+  <section id="v-members" class="hide">
+    <div class="card">
+      <h2>멤버</h2>
+      <div class="sub" id="memSub"></div>
+      <div class="row">
+        <input id="memSearch" placeholder="닉네임 검색" style="flex:1;min-width:180px">
+        <select id="memRole" style="width:auto">
+          <option value="">전체 역할</option>
+          <option value="5">방장</option>
+          <option value="4">부방장(개발자)</option>
+          <option value="3">부방장</option>
+          <option value="2">스터디하더</option>
+          <option value="1">스터디어</option>
+        </select>
+      </div>
+      <div id="memBody" style="margin-top:6px"></div>
+    </div>
+  </section>
+
+  <!-- ══ 추이 ══ -->
+  <section id="v-trend" class="hide">
+    <div class="card">
+      <h2>방 전체 추이</h2>
+      <div class="sub">
+        <span class="seg" id="trendRange">
+          <button data-d="14">14일</button>
+          <button data-d="30" class="active">30일</button>
+          <button data-d="60">60일</button>
+        </span>
+      </div>
+      <div id="trendChart"></div>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h2>요일별 평균 공부시간</h2>
+        <div class="sub">방 전체 · 기록이 있는 날만 평균</div>
+        <div id="trendDow"></div>
+      </div>
+      <div class="card">
+        <h2>날짜별 상세</h2>
+        <div class="sub">최근 순</div>
+        <div id="trendTable" style="max-height:360px;overflow:auto"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 비교 ══ -->
+  <section id="v-compare" class="hide">
+    <div class="card">
+      <h2>멤버 비교</h2>
+      <div class="sub">최대 4명까지 선택해 최근 30일 흐름을 겹쳐 봅니다</div>
+      <div id="cmpPick" class="row"></div>
+      <div id="cmpChart" style="margin-top:12px"></div>
+      <div id="cmpTable" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- ══ 관리 ══ -->
+  <section id="v-admin" class="hide">
+    <div class="card" id="adminLock">
+      <h2>관리 모드</h2>
+      <div class="sub">부방장 이상에게 전달된 암호를 입력하면 관리 기능이 열립니다.</div>
+      <div class="row">
+        <input id="admPass" type="password" inputmode="numeric" autocomplete="off"
+               placeholder="암호" style="flex:1;min-width:160px">
+        <button class="btn" id="admBtn">확인</button>
+      </div>
+      <div id="admMsg"></div>
+      <div class="hint">암호는 이 브라우저에만 보관되며, 서버에서 확인합니다.</div>
+    </div>
+
+    <div id="adminPanel" class="hide">
+      <div class="card">
+        <div class="row" style="justify-content:space-between">
+          <div><h2 style="margin:0">관리 모드 사용 중</h2>
+            <div class="sub" style="margin:0" id="admWho"></div></div>
+          <button class="btn ghost" id="admLogout">잠그기</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>XP 조정</h2>
+        <div class="sub">지급은 양수, 차감은 음수를 입력합니다. 봇이 받아 적용합니다.</div>
+        <div class="grid g3">
+          <select id="xpTarget"></select>
+          <input id="xpAmount" type="number" step="1" placeholder="예: 500 또는 -200">
+          <button class="btn" id="xpSend">적용 요청</button>
+        </div>
+        <input id="xpMemo" placeholder="사유 (선택)" style="margin-top:8px">
+        <div id="xpMsg"></div>
+      </div>
+
+      <div class="card">
+        <h2>경고 조정</h2>
+        <div class="sub">부여는 양수, 차감은 음수. 0.1 단위로 입력할 수 있습니다.</div>
+        <div class="grid g3">
+          <select id="wnTarget"></select>
+          <input id="wnAmount" type="number" step="0.1" placeholder="예: 0.5 또는 -0.5">
+          <button class="btn" id="wnSend">적용 요청</button>
+        </div>
+        <input id="wnMemo" placeholder="사유 (선택)" style="margin-top:8px">
+        <div id="wnMsg"></div>
+      </div>
+
+      <div class="card">
+        <h2>역할 변경</h2>
+        <div class="sub">방장과 개발자 권한은 봇 설정에서만 바뀝니다.</div>
+        <div class="grid g3">
+          <select id="rlTarget"></select>
+          <select id="rlValue">
+            <option value="harder">스터디하더</option>
+            <option value="vice">부방장</option>
+            <option value="none">스터디어 (해제)</option>
+          </select>
+          <button class="btn" id="rlSend">적용 요청</button>
+        </div>
+        <div id="rlMsg"></div>
+      </div>
+
+      <div class="card">
+        <h2>작업 기록</h2>
+        <div class="sub">봇이 가져가면 전송됨, 적용을 마치면 완료로 바뀝니다.</div>
+        <div id="queueBody"></div>
+      </div>
+
+      <div class="card">
+        <h2>데이터 내보내기</h2>
+        <div class="sub">현재 화면의 데이터를 CSV 파일로 저장합니다.</div>
+        <div class="row">
+          <button class="btn ghost" id="csvUsers">멤버 종합 CSV</button>
+          <button class="btn ghost" id="csvDaily">날짜별 기록 CSV</button>
+          <button class="btn ghost" id="csvServer">방 전체 일별 CSV</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>식별자 목록</h2>
+        <div class="sub">닉네임과 내부 해시를 함께 표시합니다. 동명이인 구분에 사용하세요.</div>
+        <input id="hashSearch" placeholder="닉네임 또는 해시 검색">
+        <div id="hashBody" style="margin-top:6px;max-height:420px;overflow:auto"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+
+<div class="mask" id="mask"><div class="modal">
+  <div class="modal-hd"><strong id="mTitle"></strong><button class="x" id="mClose">×</button></div>
+  <div class="modal-bd" id="mBody"></div>
+</div></div>
+
+<script>
+"use strict";
+/* ══════════════════════════════════════════════════════
+ *  설정 — 아래 한 줄만 채우면 됩니다
+ * ══════════════════════════════════════════════════════ */
+var API_URL = "https://script.google.com/macros/s/여기에_배포ID/exec";
+
+var ROOM_TITLE   = "스터디룸 기록실";
+var AUTO_REFRESH = 60000;   // 자동 새로고침 간격(ms). 0이면 끔
+
+/* ══════════════════════════════════════════════════════ */
+
+var S = { data:null, admin:false, pass:"", tab:"home",
+          rankKind:"xp", rankRange:"all", trendDays:30, cmp:[], loading:false };
+
+var ROLE = {
+  5:{n:"방장",c:"b5"}, 4:{n:"부방장(개발자)",c:"b4"}, 3:{n:"부방장",c:"b3"},
+  2:{n:"스터디하더",c:"b2"}, 1:{n:"스터디어",c:"b1"}
+};
+
+/* ── 유틸 ────────────────────────────────────────── */
+function $(id){ return document.getElementById(id); }
+function el(tag, cls, txt){ var e=document.createElement(tag); if(cls)e.className=cls;
+  if(txt!==undefined)e.textContent=txt; return e; }
+function esc(s){ return String(s==null?"":s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+function pad2(n){ return n<10?"0"+n:""+n; }
+
+function hm(sec){
+  sec = Math.max(0, Math.round(sec||0));
+  var h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60);
+  if(h && m) return h+"시간 "+m+"분";
+  if(h) return h+"시간";
+  return m+"분";
+}
+function hmShort(sec){
+  sec = Math.max(0, Math.round(sec||0));
+  var h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60);
+  return h ? (h+"h "+(m?m+"m":"")).trim() : m+"m";
+}
+function nf(n){ return (Math.round((n||0)*100)/100).toLocaleString("ko-KR"); }
+function when(ms){
+  if(!ms) return "기록 없음";
+  var d = Math.floor((Date.now()-ms)/86400000);
+  if(d<=0){
+    var h = Math.floor((Date.now()-ms)/3600000);
+    if(h<=0) return "방금 전";
+    return h+"시간 전";
+  }
+  if(d===1) return "어제";
+  return d+"일 전";
+}
+function dstr(off){
+  var d = new Date();
+  if(d.getHours() < (S.data && S.data.resetHour!==undefined ? S.data.resetHour : 5)) d.setDate(d.getDate()-1);
+  d.setDate(d.getDate()-(off||0));
+  return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+}
+function dateList(n){ var a=[]; for(var i=n-1;i>=0;i--) a.push(dstr(i)); return a; }
+
+/* ── 통신 ────────────────────────────────────────── */
+function api(action, payload, pass){
+  var body = { action:action, payload:payload||{} };
+  if(pass) body.pass = pass;
+
+  // 1차: 단순 요청(text/plain)으로 POST — 사전 요청(preflight)이 없어 CORS에 걸리지 않음
+  return fetch(API_URL, {
+    method:"POST", redirect:"follow",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body: JSON.stringify(body)
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){ return JSON.parse(t); })
+  .catch(function(){ return jsonp(body); })   // 2차: JSONP 우회
+  .then(function(res){
+    if(!res || !res.ok) throw new Error((res && res.error) || "서버에서 응답을 받지 못했습니다.");
+    return res.data;
+  });
+}
+
+var _jc = 0;
+function jsonp(body){
+  return new Promise(function(resolve, reject){
+    var cb = "__sb_cb_" + (++_jc) + "_" + Date.now();
+    var sc = document.createElement("script");
+    var timer = setTimeout(function(){ cleanup(); reject(new Error("서버 응답이 지연되고 있습니다.")); }, 25000);
+    function cleanup(){ clearTimeout(timer); try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
+      if(sc.parentNode) sc.parentNode.removeChild(sc); }
+    window[cb] = function(res){ cleanup(); resolve(res); };
+    sc.onerror = function(){ cleanup(); reject(new Error("서버에 연결할 수 없습니다.")); };
+    sc.src = API_URL + "?callback=" + cb + "&p=" + encodeURIComponent(JSON.stringify(body));
+    document.body.appendChild(sc);
+  });
+}
+
+/* ── 계산 ────────────────────────────────────────── */
+function dailyOf(u, date){ var d = u.daily && u.daily[date]; return d || [0,0,0,0]; }
+
+function sumRange(u, range){
+  var out = { sec:0, cert:0, chat:0, bonus:0 };
+  if(range === "all"){
+    out.sec = u.totalSec||0; out.cert = u.totalCert||0;
+    out.chat = u.totalChat||0; out.bonus = u.bonusXp||0;
+    return out;
+  }
+  var days = (range === "today") ? 1 : parseInt(range,10);
+  var list = dateList(days);
+  for(var i=0;i<list.length;i++){
+    var d = dailyOf(u, list[i]);
+    out.sec += d[0]; out.cert += d[1]; out.chat += d[2]; out.bonus += d[3];
+  }
+  return out;
+}
+
+function warnRate(w){
+  var pct = Math.ceil(Math.round((w||0)*100)/10);
+  var r = 1 - pct/100;
+  return r < 0 ? 0 : r;
+}
+function xpOf(u, range){
+  var r = S.data.xpRule || { perMinStudy:1, perChat:1 };
+  var s = sumRange(u, range);
+  var raw = Math.floor(s.sec/60) * (r.perMinStudy||1) + s.chat * (r.perChat||1);
+  return Math.max(0, Math.floor(raw * warnRate(u.warnings)) + s.bonus);
+}
+function metric(u, kind, range){
+  var s = sumRange(u, range);
+  if(kind === "xp")     return xpOf(u, range);
+  if(kind === "study")  return s.sec;
+  if(kind === "chat")   return s.chat;
+  if(kind === "cert")   return s.cert;
+  if(kind === "attend") return u.attendance||0;
+  return 0;
+}
+function fmtMetric(v, kind){
+  if(kind === "study")  return hm(v);
+  if(kind === "xp")     return nf(v)+" xp";
+  if(kind === "chat")   return nf(v)+"회";
+  if(kind === "cert")   return nf(v)+"회";
+  if(kind === "attend") return nf(v)+"일";
+  return nf(v);
+}
+function users(){ return (S.data && S.data.users) ? S.data.users : []; }
+function byUid(uid){ var a=users(); for(var i=0;i<a.length;i++) if(a[i].uid===uid) return a[i]; return null; }
+
+function serverMap(){
+  var m = {};
+  ((S.data && S.data.serverDays) || []).forEach(function(r){
+    m[r[0]] = { sec:r[1], cert:r[2], chat:r[3], studyUsers:r[4], chatUsers:r[5] };
+  });
+  return m;
+}
+
+/* ── 차트 (외부 라이브러리 없이 SVG 직접 생성) ── */
+function barChart(items, opt){
+  opt = opt || {};
+  var W = 100, n = Math.max(1, items.length);
+  var gap = n > 40 ? 0.15 : 0.25;
+  var bw = W / (n + (n-1)*gap);
+  var max = 0;
+  items.forEach(function(it){ if(it.v > max) max = it.v; });
+  if(max <= 0) max = 1;
+
+  var H = opt.height || 120;
+  var s = '<svg class="chart" viewBox="0 0 100 '+(H+14)+'" preserveAspectRatio="none" role="img">';
+  s += '<line class="gl" x1="0" y1="'+H+'" x2="100" y2="'+H+'"/>';
+  items.forEach(function(it, i){
+    var h = Math.max(it.v > 0 ? 1.2 : 0.6, (it.v/max)*(H-6));
+    var x = i * (bw + bw*gap);
+    s += '<rect class="b'+(it.v>0?"":" zero")+'" x="'+x.toFixed(2)+'" y="'+(H-h).toFixed(2)+
+         '" width="'+bw.toFixed(2)+'" height="'+h.toFixed(2)+'" rx="0.6">'+
+         '<title>'+esc(it.label+" · "+it.tip)+'</title></rect>';
+  });
+  s += '</svg>';
+
+  var labels = '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px">'+
+    '<span>'+esc(items[0]?items[0].label:"")+'</span>'+
+    '<span>'+esc(items[items.length-1]?items[items.length-1].label:"")+'</span></div>';
+  return s + labels;
+}
+
+function multiLineChart(series, labels, opt){
+  opt = opt || {};
+  var H = opt.height || 150, W = 100;
+  var max = 0;
+  series.forEach(function(sr){ sr.values.forEach(function(v){ if(v>max) max=v; }); });
+  if(max <= 0) max = 1;
+  var n = Math.max(2, labels.length);
+  var step = W/(n-1);
+
+  var s = '<svg class="chart" viewBox="0 0 100 '+(H+14)+'" preserveAspectRatio="none" role="img">';
+  for(var g=0; g<=3; g++){
+    var y = (H/3)*g;
+    s += '<line class="gl" x1="0" y1="'+y.toFixed(1)+'" x2="100" y2="'+y.toFixed(1)+'" opacity="0.5"/>';
+  }
+  series.forEach(function(sr){
+    var d = "";
+    sr.values.forEach(function(v,i){
+      var x = i*step, y = H - (v/max)*(H-6);
+      d += (i?" L":"M") + x.toFixed(2) + " " + y.toFixed(2);
+    });
+    s += '<path class="ln" d="'+d+'" style="stroke:'+(sr.color||"var(--accent)")+'"/>';
+  });
+  s += '</svg>';
+
+  var lg = '<div class="row" style="margin-top:8px;font-size:12px">';
+  series.forEach(function(sr){
+    lg += '<span style="display:inline-flex;align-items:center;gap:5px">'+
+      '<i style="width:10px;height:10px;border-radius:3px;background:'+(sr.color||"var(--accent)")+
+      ';display:inline-block"></i>'+esc(sr.name)+'</span>';
+  });
+  lg += '</div>';
+
+  var ax = '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px">'+
+    '<span>'+esc(labels[0]||"")+'</span><span>'+esc(labels[labels.length-1]||"")+'</span></div>';
+  return s + ax + lg;
+}
+
+/* ── 표 ─────────────────────────────────────────── */
+function makeTable(cols, rows, opt){
+  opt = opt || {};
+  if(!rows.length) return '<div class="empty">'+esc(opt.empty||"표시할 기록이 없습니다.")+'</div>';
+  var h = '<div style="overflow-x:auto"><table><thead><tr>';
+  cols.forEach(function(c){ h += '<th class="no'+(c.num?" num":"")+'">'+esc(c.t)+'</th>'; });
+  h += '</tr></thead><tbody>';
+  rows.forEach(function(r){
+    h += '<tr>';
+    r.forEach(function(cell, i){
+      h += '<td class="'+(cols[i] && cols[i].num ? "num":"")+'">'+cell+'</td>';
+    });
+    h += '</tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+function roleBadge(role){
+  var r = ROLE[role] || ROLE[1];
+  return '<span class="badge '+r.c+'">'+esc(r.n)+'</span>';
+}
+function nameCell(u){
+  return '<span class="name" data-uid="'+esc(u.uid)+'">'+esc(u.name||"이름 없음")+'</span>';
+}
+
+/* ── 화면 그리기 ─────────────────────────────────── */
+function render(){
+  if(!S.data) return;
+  $("hdSub").textContent = S.data.ready
+    ? ("업데이트 " + when(S.data.updatedAt))
+    : "대기 중";
+  renderHome(); renderRank(); renderMembers(); renderTrend(); renderCompare(); renderAdminData();
+  $("foot").textContent = ROOM_TITLE + " · 기록은 봇이 자동으로 모읍니다";
+}
+
+function renderHome(){
+  var us = users(), sm = serverMap(), today = dstr(0);
+  var t = sm[today] || { sec:0, cert:0, chat:0, studyUsers:0, chatUsers:0 };
+
+  var totalSec = 0, totalChat = 0, totalXp = 0;
+  us.forEach(function(u){ totalSec += u.totalSec||0; totalChat += u.totalChat||0; totalXp += xpOf(u,"all"); });
+
+  var stats = [
+    { k:"오늘 공부", v:hm(t.sec), d:t.studyUsers+"명 참여" },
+    { k:"오늘 채팅", v:nf(t.chat)+"회", d:t.chatUsers+"명 대화" },
+    { k:"누적 공부", v:hm(totalSec), d:us.length+"명 등록" },
+    { k:"누적 XP", v:nf(totalXp)+" xp", d:"방 전체 합계" }
+  ];
+  $("homeStats").innerHTML = stats.map(function(s){
+    return '<div class="stat"><div class="k">'+esc(s.k)+'</div><div class="v">'+esc(s.v)+
+           '</div><div class="d">'+esc(s.d)+'</div></div>';
+  }).join("");
+
+  // 오늘 공부한 사람
+  var todayList = us.map(function(u){ return { u:u, sec:dailyOf(u,today)[0], chat:dailyOf(u,today)[2] }; })
+                    .filter(function(x){ return x.sec>0; })
+                    .sort(function(a,b){ return b.sec-a.sec; });
+  var maxSec = todayList.length ? todayList[0].sec : 1;
+  if(!todayList.length){
+    $("homeToday").innerHTML = '<div class="empty">아직 오늘 인증한 사람이 없습니다.</div>';
+  } else {
+    $("homeToday").innerHTML = todayList.map(function(x,i){
+      return '<div style="padding:9px 0;border-bottom:1px solid var(--line)">'+
+        '<div class="row" style="justify-content:space-between">'+
+        '<span><span class="rank'+(i<3?" m"+(i+1):"")+'">'+(i+1)+'</span> '+nameCell(x.u)+' '+roleBadge(x.u.role)+'</span>'+
+        '<strong>'+esc(hm(x.sec))+'</strong></div>'+
+        '<div class="bar"><i style="width:'+Math.max(3,(x.sec/maxSec)*100).toFixed(1)+'%"></i></div></div>';
+    }).join("");
+  }
+  $("homeTodaySub").textContent = "기준 " + today + " (오전 " + (S.data.resetHour||5) + "시 시작)";
+
+  // 최근 14일 막대
+  var days = dateList(14);
+  $("homeChart").innerHTML = barChart(days.map(function(d){
+    var v = (sm[d]||{}).sec || 0;
+    return { label:d.slice(5), v:v, tip:hm(v) };
+  }), { height:120 });
+
+  // XP 상위
+  var top = us.slice().sort(function(a,b){ return xpOf(b,"all")-xpOf(a,"all"); }).slice(0,8);
+  $("homeXp").innerHTML = top.length ? top.map(function(u,i){
+    return '<div class="row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)">'+
+      '<span><span class="rank'+(i<3?" m"+(i+1):"")+'">'+(i+1)+'</span> '+nameCell(u)+'</span>'+
+      '<strong>'+esc(nf(xpOf(u,"all")))+' xp</strong></div>';
+  }).join("") : '<div class="empty">기록이 없습니다.</div>';
+
+  // 이번 주
+  var wk = us.map(function(u){
+    var s = sumRange(u,"7");
+    return { u:u, sec:s.sec, chat:s.chat, cert:s.cert };
+  }).filter(function(x){ return x.sec>0 || x.chat>0; })
+    .sort(function(a,b){ return b.sec-a.sec; });
+  $("homeWeek").innerHTML = makeTable(
+    [{t:"멤버"},{t:"공부",num:1},{t:"인증",num:1},{t:"채팅",num:1},{t:"출석",num:1}],
+    wk.map(function(x){
+      return [ nameCell(x.u)+" "+roleBadge(x.u.role), hm(x.sec), nf(x.cert)+"회",
+               nf(x.chat)+"회", nf(x.u.attendance)+"일" ];
+    }), { empty:"최근 7일 활동 기록이 없습니다." });
+}
+
+function renderRank(){
+  var kind = S.rankKind, range = S.rankRange;
+  var q = ($("rankSearch").value||"").trim().toLowerCase();
+
+  var list = users().map(function(u){ return { u:u, v:metric(u,kind,range) }; })
+    .filter(function(x){ return x.v > 0; })
+    .sort(function(a,b){ return b.v - a.v; });
+
+  var shown = list.filter(function(x){
+    return !q || (x.u.name||"").toLowerCase().indexOf(q) !== -1;
+  });
+  var max = list.length ? list[0].v : 1;
+
+  if(!shown.length){
+    $("rankBody").innerHTML = '<div class="empty">해당 조건의 기록이 없습니다.</div>';
+    return;
+  }
+  $("rankBody").innerHTML = shown.map(function(x){
+    var i = list.indexOf(x);
+    return '<div style="padding:10px 0;border-bottom:1px solid var(--line)">'+
+      '<div class="row" style="justify-content:space-between">'+
+      '<span><span class="rank'+(i<3?" m"+(i+1):"")+'">'+(i+1)+'</span> '+
+      nameCell(x.u)+' '+roleBadge(x.u.role)+'</span>'+
+      '<strong>'+esc(fmtMetric(x.v,kind))+'</strong></div>'+
+      '<div class="bar"><i style="width:'+Math.max(3,(x.v/max)*100).toFixed(1)+'%"></i></div></div>';
+  }).join("");
+}
+
+function renderMembers(){
+  var q = ($("memSearch").value||"").trim().toLowerCase();
+  var rf = $("memRole").value;
+  var us = users().slice().sort(function(a,b){
+    if(b.role !== a.role) return b.role - a.role;
+    return (b.lastChat||0) - (a.lastChat||0);
+  });
+  var shown = us.filter(function(u){
+    if(rf && String(u.role) !== rf) return false;
+    return !q || (u.name||"").toLowerCase().indexOf(q) !== -1;
+  });
+
+  $("memSub").textContent = "전체 " + us.length + "명 중 " + shown.length + "명 표시";
+  $("memBody").innerHTML = makeTable(
+    [{t:"멤버"},{t:"역할"},{t:"누적 공부",num:1},{t:"XP",num:1},{t:"출석",num:1},
+     {t:"경고",num:1},{t:"최근 활동",num:1}],
+    shown.map(function(u){
+      var w = u.warnings||0;
+      return [
+        nameCell(u), roleBadge(u.role), hm(u.totalSec), nf(xpOf(u,"all"))+" xp",
+        nf(u.attendance)+"일",
+        w > 0 ? '<span style="color:var(--bad)">'+nf(w)+'</span>' : '<span class="muted">0</span>',
+        '<span class="muted">'+esc(when(u.lastChat))+'</span>'
+      ];
+    }), { empty:"조건에 맞는 멤버가 없습니다." });
+}
+
+function renderTrend(){
+  var sm = serverMap(), days = dateList(S.trendDays);
+
+  $("trendChart").innerHTML = multiLineChart([
+    { name:"공부시간(시간)", color:"var(--accent)",
+      values: days.map(function(d){ return ((sm[d]||{}).sec||0)/3600; }) },
+    { name:"채팅(회)", color:"var(--good)",
+      values: days.map(function(d){ return (sm[d]||{}).chat||0; }) }
+  ], days.map(function(d){ return d.slice(5); }), { height:160 });
+
+  // 요일별 평균
+  var DOW = ["일","월","화","수","목","금","토"];
+  var sum = [0,0,0,0,0,0,0], cnt = [0,0,0,0,0,0,0];
+  dateList(60).forEach(function(d){
+    var r = sm[d]; if(!r) return;
+    var p = d.split("-");
+    var w = new Date(+p[0], +p[1]-1, +p[2]).getDay();
+    sum[w] += r.sec; cnt[w]++;
+  });
+  var avg = sum.map(function(v,i){ return cnt[i] ? v/cnt[i] : 0; });
+  $("trendDow").innerHTML = barChart(avg.map(function(v,i){
+    return { label:DOW[i], v:v, tip:hm(v) };
+  }), { height:110 }) +
+  '<div class="row" style="justify-content:space-between;margin-top:6px;font-size:12px;color:var(--muted)">'+
+    DOW.map(function(d){ return '<span>'+d+'</span>'; }).join("")+'</div>';
+
+  var rows = dateList(S.trendDays).slice().reverse().map(function(d){
+    var r = sm[d] || { sec:0, cert:0, chat:0, studyUsers:0, chatUsers:0 };
+    return [ d, hm(r.sec), nf(r.cert)+"회", nf(r.chat)+"회", nf(r.studyUsers)+"명" ];
+  }).filter(function(r){ return r[1] !== "0분" || r[3] !== "0회"; });
+
+  $("trendTable").innerHTML = makeTable(
+    [{t:"날짜"},{t:"공부",num:1},{t:"인증",num:1},{t:"채팅",num:1},{t:"참여",num:1}],
+    rows, { empty:"기록이 없습니다." });
+}
+
+function renderCompare(){
+  var us = users().slice().sort(function(a,b){ return (b.totalSec||0)-(a.totalSec||0); });
+  $("cmpPick").innerHTML = us.slice(0,30).map(function(u){
+    var on = S.cmp.indexOf(u.uid) !== -1;
+    return '<button class="iconbtn'+(on?" on":"")+'" data-cmp="'+esc(u.uid)+'">'+esc(u.name||"이름 없음")+'</button>';
+  }).join("") || '<div class="empty">멤버가 없습니다.</div>';
+  renderCompareResult();
+}
+
+// 선택 버튼은 그대로 두고 결과만 다시 그린다 (연속 선택 시 버튼이 사라지지 않도록)
+function renderCompareResult(){
+  if(!S.cmp.length){
+    $("cmpChart").innerHTML = '<div class="empty">위에서 멤버를 눌러 선택하세요.</div>';
+    $("cmpTable").innerHTML = "";
+    return;
+  }
+  var COLORS = ["#3b6fd4","#2f9e63","#d98324","#a4306c"];
+  var days = dateList(30);
+  var series = S.cmp.map(function(uid, i){
+    var u = byUid(uid);
+    return { name:(u&&u.name)||"?", color:COLORS[i%4],
+             values: days.map(function(d){ return dailyOf(u,d)[0]/3600; }) };
+  });
+  $("cmpChart").innerHTML = multiLineChart(series, days.map(function(d){ return d.slice(5); }),
+    { height:160 }) + '<div class="hint">세로축 단위: 시간</div>';
+
+  $("cmpTable").innerHTML = makeTable(
+    [{t:"멤버"},{t:"30일 공부",num:1},{t:"7일 공부",num:1},{t:"누적 XP",num:1},{t:"출석",num:1}],
+    S.cmp.map(function(uid){
+      var u = byUid(uid); if(!u) return ["-","-","-","-","-"];
+      return [ nameCell(u), hm(sumRange(u,"30").sec), hm(sumRange(u,"7").sec),
+               nf(xpOf(u,"all"))+" xp", nf(u.attendance)+"일" ];
+    }), {});
+}
+
+/* ── 개인 상세 ── */
+function openUser(uid){
+  var u = byUid(uid); if(!u) return;
+  $("mTitle").innerHTML = esc(u.name||"이름 없음") + " " + roleBadge(u.role);
+
+  var days = dateList(30);
+  var chart = barChart(days.map(function(d){
+    var v = dailyOf(u,d)[0];
+    return { label:d.slice(5), v:v, tip:hm(v) };
+  }), { height:110 });
+
+  var streak = 0;
+  for(var i=0;i<60;i++){ if(dailyOf(u,dstr(i))[0] > 0) streak++; else break; }
+
+  var best = { d:"", v:0 };
+  dateList(60).forEach(function(d){
+    var v = dailyOf(u,d)[0];
+    if(v > best.v) best = { d:d, v:v };
+  });
+
+  var h = "";
+  h += '<div class="grid g3">'+
+    stat("누적 공부", hm(u.totalSec), nf(u.totalCert)+"회 인증") +
+    stat("누적 XP", nf(xpOf(u,"all"))+" xp", "보너스 "+nf(u.bonusXp)+" xp") +
+    stat("출석", nf(u.attendance)+"일", "연속 공부 "+streak+"일") +
+  '</div>';
+
+  h += '<div class="card" style="box-shadow:none"><h2>최근 30일 공부시간</h2>'+
+       '<div class="sub">막대에 커서를 올리면 상세가 보입니다</div>'+chart+'</div>';
+
+  h += '<div class="card" style="box-shadow:none"><h2>기간별 기록</h2><div class="kv">';
+  [["오늘","today"],["최근 7일","7"],["최근 30일","30"],["누적","all"]].forEach(function(p){
+    var s = sumRange(u, p[1]);
+    h += '<span class="k">'+esc(p[0])+'</span><span class="v">'+esc(hm(s.sec))+
+         ' · 채팅 '+nf(s.chat)+'회 · '+nf(xpOf(u,p[1]))+' xp</span>';
+  });
+  h += '</div></div>';
+
+  h += '<div class="card" style="box-shadow:none"><h2>기타</h2><div class="kv">'+
+    kv("최고 기록", best.v ? (best.d+" · "+hm(best.v)) : "없음") +
+    kv("경고", nf(u.warnings) + " / " + (S.data.warningMax||5)) +
+    kv("마지막 대화", when(u.lastChat)) +
+    kv("마지막 인증", when(u.lastStudy)) +
+    kv("등록", u.createdAt ? new Date(u.createdAt).toLocaleDateString("ko-KR") : "기록 없음") +
+    (S.admin && u.hash ? kv("내부 식별자", '<span class="mono hashcell">'+esc(u.hash)+'</span>') : "") +
+  '</div></div>';
+
+  $("mBody").innerHTML = h;
+  $("mask").classList.add("show");
+}
+function stat(k,v,d){
+  return '<div class="stat"><div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+
+         '</div><div class="d">'+esc(d)+'</div></div>';
+}
+function kv(k,v){ return '<span class="k">'+esc(k)+'</span><span class="v">'+v+'</span>'; }
+
+/* ── 관리 ── */
+function renderAdminData(){
+  if(!S.admin) return;
+  var us = users().slice().sort(function(a,b){ return (a.name||"").localeCompare(b.name||"","ko"); });
+  var opts = us.map(function(u){
+    return '<option value="'+esc(u.uid)+'">'+esc(u.name||"이름 없음")+
+           ' · '+ROLE[u.role].n+'</option>';
+  }).join("");
+  ["xpTarget","wnTarget","rlTarget"].forEach(function(id){
+    var sel = $(id), keep = sel.value;
+    sel.innerHTML = opts || '<option value="">멤버 없음</option>';
+    if(keep) sel.value = keep;
+  });
+
+  var q = ($("hashSearch").value||"").trim().toLowerCase();
+  var rows = us.filter(function(u){
+    return !q || (u.name||"").toLowerCase().indexOf(q)!==-1 ||
+           (u.hash||"").toLowerCase().indexOf(q)!==-1;
+  }).map(function(u){
+    return [ esc(u.name||"이름 없음"), roleBadge(u.role),
+             '<span class="mono hashcell">'+esc(u.hash||"-")+'</span>' ];
+  });
+  $("hashBody").innerHTML = makeTable([{t:"닉네임"},{t:"역할"},{t:"내부 식별자"}], rows, {});
+
+  renderQueue();
+}
+
+function renderQueue(){
+  var q = (S.data && S.data.queue) || [];
+  var LBL = { xp:"XP 조정", warn:"경고 조정", role:"역할 변경" };
+  var ST  = { pending:'<span class="muted">대기 중</span>',
+              sent:'<span style="color:var(--warn)">전송됨</span>',
+              done:'<span style="color:var(--good)">완료</span>' };
+  var rows = q.slice().reverse().slice(0,40).map(function(c){
+    var amt = c.type === "role"
+      ? ({ vice:"부방장", harder:"스터디하더", none:"스터디어" }[c.amount] || c.amount)
+      : (Number(c.amount) > 0 ? "+" : "") + nf(c.amount);
+    return [ esc(c.name||"-"), esc(LBL[c.type]||c.type), esc(amt),
+             ST[c.status] || esc(c.status),
+             '<span class="muted">'+esc(c.createdAt ? when(c.createdAt) : "-")+'</span>' ];
+  });
+  $("queueBody").innerHTML = makeTable(
+    [{t:"대상"},{t:"작업"},{t:"값",num:1},{t:"상태"},{t:"요청"}],
+    rows, { empty:"아직 요청한 작업이 없습니다." });
+}
+
+function sendCmd(type, uid, amount, memo, msgEl, btn){
+  var u = byUid(uid);
+  if(!u || !u.hash){ show(msgEl,"대상을 선택해 주세요.","bad"); return; }
+
+  var label = { xp:"XP", warn:"경고", role:"역할" }[type];
+  var desc = type === "role"
+    ? ({ vice:"부방장", harder:"스터디하더", none:"스터디어" }[amount])
+    : ((Number(amount)>0?"+":"") + amount);
+  if(!confirm(u.name + "님의 " + label + "을(를) " + desc + " (으)로 처리할까요?")) return;
+
+  btn.disabled = true;
+  show(msgEl, "요청을 보내는 중입니다...", "");
+  api("adminCmd", { type:type, hash:u.hash, name:u.name, amount:amount, memo:memo||"" }, S.pass)
+    .then(function(){
+      show(msgEl, "요청을 접수했습니다. 봇이 곧 적용하고 방에 알립니다.", "good");
+      return load(true);
+    })
+    .catch(function(e){ show(msgEl, e.message, "bad"); })
+    .then(function(){ btn.disabled = false; });
+}
+function show(elm, text, kind){
+  if(!text){ elm.innerHTML = ""; return; }
+  elm.innerHTML = '<div class="note'+(kind?" "+kind:"")+'">'+esc(text)+'</div>';
+}
+
+/* ── CSV ── */
+function csv(rows, filename){
+  var body = rows.map(function(r){
+    return r.map(function(c){
+      var s = String(c==null?"":c);
+      return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+    }).join(",");
+  }).join("\n");
+  var blob = new Blob(["\uFEFF"+body], { type:"text/csv;charset=utf-8" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+/* ── 데이터 로드 ── */
+function load(silent){
+  if(S.loading) return Promise.resolve();
+  S.loading = true;
+  if(!silent) $("banner").innerHTML = '<div class="note"><span class="spinner"></span> 기록을 불러오는 중입니다...</div>';
+
+  var action = S.admin ? "dashAdmin" : "dash";
+  return api(action, {}, S.admin ? S.pass : null)
+    .then(function(d){
+      S.data = d;
+      $("banner").innerHTML = d.ready ? "" :
+        '<div class="note bad">'+esc(d.message||"데이터가 아직 없습니다.")+'</div>';
+      render();
+    })
+    .catch(function(e){
+      $("banner").innerHTML = '<div class="note bad">불러오지 못했습니다 — '+esc(e.message)+'</div>';
+    })
+    .then(function(){ S.loading = false; });
+}
+
+/* ── 초기화 / 이벤트 ── */
+function switchTab(t){
+  S.tab = t;
+  ["home","rank","members","trend","compare","admin"].forEach(function(k){
+    $("v-"+k).classList.toggle("hide", k !== t);
+  });
+  Array.prototype.forEach.call($("tabs").children, function(b){
+    b.classList.toggle("active", b.dataset.t === t);
+  });
+  try { history.replaceState(null,"","#"+t); } catch(e){}
+}
+
+function initTheme(){
+  var saved = null;
+  try { saved = localStorage.getItem("sb_theme"); } catch(e){}
+  var dark = saved ? saved === "dark"
+    : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  $("btnTheme").textContent = dark ? "☀️" : "🌙";
+}
+
+function boot(){
+  document.title = ROOM_TITLE;
+  initTheme();
+
+  $("btnTheme").onclick = function(){
+    var dark = document.documentElement.getAttribute("data-theme") !== "dark";
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    $("btnTheme").textContent = dark ? "☀️" : "🌙";
+    try { localStorage.setItem("sb_theme", dark ? "dark" : "light"); } catch(e){}
+  };
+  $("btnReload").onclick = function(){ load(); };
+
+  Array.prototype.forEach.call($("tabs").children, function(b){
+    b.onclick = function(){ switchTab(b.dataset.t); };
+  });
+
+  $("rankKind").onclick = function(e){
+    var b = e.target.closest("button"); if(!b) return;
+    S.rankKind = b.dataset.k;
+    Array.prototype.forEach.call(this.children, function(x){ x.classList.toggle("active", x===b); });
+    renderRank();
+  };
+  $("rankRange").onclick = function(e){
+    var b = e.target.closest("button"); if(!b) return;
+    S.rankRange = b.dataset.r;
+    Array.prototype.forEach.call(this.children, function(x){ x.classList.toggle("active", x===b); });
+    renderRank();
+  };
+  $("rankSearch").oninput = renderRank;
+  $("memSearch").oninput  = renderMembers;
+  $("memRole").onchange   = renderMembers;
+  $("hashSearch") && ($("hashSearch").oninput = renderAdminData);
+
+  $("trendRange").onclick = function(e){
+    var b = e.target.closest("button"); if(!b) return;
+    S.trendDays = parseInt(b.dataset.d,10);
+    Array.prototype.forEach.call(this.children, function(x){ x.classList.toggle("active", x===b); });
+    renderTrend();
+  };
+
+  $("cmpPick").onclick = function(e){
+    var b = e.target.closest("[data-cmp]"); if(!b) return;
+    var uid = b.dataset.cmp, i = S.cmp.indexOf(uid);
+    if(i !== -1){ S.cmp.splice(i,1); b.classList.remove("on"); }
+    else {
+      if(S.cmp.length >= 4){ alert("최대 4명까지 선택할 수 있습니다."); return; }
+      S.cmp.push(uid); b.classList.add("on");
+    }
+    renderCompareResult();
+  };
+
+  document.addEventListener("click", function(e){
+    var n = e.target.closest(".name[data-uid]");
+    if(n) openUser(n.dataset.uid);
+  });
+  $("mClose").onclick = function(){ $("mask").classList.remove("show"); };
+  $("mask").onclick = function(e){ if(e.target === this) this.classList.remove("show"); };
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape") $("mask").classList.remove("show");
+  });
+
+  // 관리 모드
+  function unlock(){
+    var p = ($("admPass").value||"").trim();
+    if(!p){ show($("admMsg"),"암호를 입력해 주세요.","bad"); return; }
+    $("admBtn").disabled = true;
+    show($("admMsg"),"확인 중입니다...","");
+    api("adminCheck", {}, p)
+      .then(function(){
+        S.admin = true; S.pass = p;
+        try { sessionStorage.setItem("sb_pass", p); } catch(e){}
+        $("adminLock").classList.add("hide");
+        $("adminPanel").classList.remove("hide");
+        $("admWho").textContent = "XP · 경고 · 역할을 조정할 수 있습니다.";
+        show($("admMsg"),"","");
+        return load(true);
+      })
+      .catch(function(e){ show($("admMsg"), e.message, "bad"); })
+      .then(function(){ $("admBtn").disabled = false; });
+  }
+  $("admBtn").onclick = unlock;
+  $("admPass").onkeydown = function(e){ if(e.key === "Enter") unlock(); };
+  $("admLogout").onclick = function(){
+    S.admin = false; S.pass = "";
+    try { sessionStorage.removeItem("sb_pass"); } catch(e){}
+    $("adminPanel").classList.add("hide");
+    $("adminLock").classList.remove("hide");
+    $("admPass").value = "";
+    load(true);
+  };
+
+  $("xpSend").onclick = function(){
+    var v = parseInt($("xpAmount").value,10);
+    if(!v){ show($("xpMsg"),"0이 아닌 정수를 입력해 주세요.","bad"); return; }
+    sendCmd("xp", $("xpTarget").value, v, $("xpMemo").value, $("xpMsg"), this);
+  };
+  $("wnSend").onclick = function(){
+    var v = parseFloat($("wnAmount").value);
+    if(!v){ show($("wnMsg"),"0이 아닌 수치를 입력해 주세요.","bad"); return; }
+    sendCmd("warn", $("wnTarget").value, v, $("wnMemo").value, $("wnMsg"), this);
+  };
+  $("rlSend").onclick = function(){
+    sendCmd("role", $("rlTarget").value, $("rlValue").value, "", $("rlMsg"), this);
+  };
+
+  $("csvUsers").onclick = function(){
+    var rows = [["닉네임","역할","누적공부(초)","누적공부","인증횟수","채팅","출석","경고","보너스XP","누적XP","식별자"]];
+    users().forEach(function(u){
+      rows.push([u.name, ROLE[u.role].n, u.totalSec, hm(u.totalSec), u.totalCert, u.totalChat,
+                 u.attendance, u.warnings, u.bonusXp, xpOf(u,"all"), u.hash||u.uid]);
+    });
+    csv(rows, "멤버종합_"+dstr(0)+".csv");
+  };
+  $("csvDaily").onclick = function(){
+    var rows = [["날짜","닉네임","공부(초)","인증","채팅","보너스XP"]];
+    users().forEach(function(u){
+      Object.keys(u.daily||{}).sort().forEach(function(d){
+        var x = u.daily[d];
+        rows.push([d, u.name, x[0], x[1], x[2], x[3]]);
+      });
+    });
+    csv(rows, "날짜별기록_"+dstr(0)+".csv");
+  };
+  $("csvServer").onclick = function(){
+    var rows = [["날짜","공부(초)","인증","채팅","공부인원","채팅인원"]];
+    ((S.data&&S.data.serverDays)||[]).forEach(function(r){ rows.push(r); });
+    csv(rows, "방전체일별_"+dstr(0)+".csv");
+  };
+
+  var h = (location.hash||"").replace("#","");
+  if(["home","rank","members","trend","compare","admin"].indexOf(h) !== -1) switchTab(h);
+
+  var saved = null;
+  try { saved = sessionStorage.getItem("sb_pass"); } catch(e){}
+  if(saved){
+    S.pass = saved;
+    api("adminCheck", {}, saved).then(function(){
+      S.admin = true;
+      $("adminLock").classList.add("hide");
+      $("adminPanel").classList.remove("hide");
+      $("admWho").textContent = "XP · 경고 · 역할을 조정할 수 있습니다.";
+      return load(true);
+    }).catch(function(){
+      S.pass = "";
+      try { sessionStorage.removeItem("sb_pass"); } catch(e){}
+      load();
+    });
+  } else {
+    load();
+  }
+
+  if(AUTO_REFRESH > 0){
+    setInterval(function(){
+      if(document.visibilityState === "visible" && !$("mask").classList.contains("show")) load(true);
+    }, AUTO_REFRESH);
+  }
+}
+
+if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+else boot();
+</script>
+</body>
+</html>

@@ -389,7 +389,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:28px 10px}
 /* ══════════════════════════════════════════════════════
  *  설정 — 아래 한 줄만 채우면 됩니다
  * ══════════════════════════════════════════════════════ */
-var API_URL = "https://script.google.com/macros/s/AKfycbxzz_u76hkDcQjhn6eIMZF66uGVRJuX5zWKHSzLcLa8sXZSwURrZENkt2YinoLcJGzp/exec";
+var API_URL ="https://script.google.com/macros/s/AKfycbyxfu9ryCZmXvBIPul_Aut8ephqW3S4myatFHi6a9H9V0B9UYeLtUu4MlVBRyYP_DqJ/exec";
 
 var ROOM_TITLE   = "스터디룸 기록실";
 var AUTO_REFRESH = 60000;   // 자동 새로고침 간격(ms). 0이면 끔
@@ -481,7 +481,8 @@ function jsonp(body){
 }
 
 /* ── 계산 ────────────────────────────────────────── */
-function dailyOf(u, date){ var d = u.daily && u.daily[date]; return d || [0,0,0,0]; }
+// [공부초, 인증, 채팅, 보너스XP, 미니게임]
+function dailyOf(u, date){ var d = u.daily && u.daily[date]; return d || [0,0,0,0,0]; }
 
 function sumRange(u, range){
   var out = { sec:0, cert:0, chat:0, bonus:0 };
@@ -504,10 +505,21 @@ function warnRate(w){
   var r = 1 - pct/100;
   return r < 0 ? 0 : r;
 }
+// 공부 시간 → XP. 1시간마다 perHourStudy, 1시간을 못 채운 잔여 분마다 perMinRemain.
+function studyXp(sec){
+  var r = (S.data && S.data.xpRule) || {};
+  sec = Math.max(0, Math.floor(sec||0));
+  // 옛 스냅샷(분당 1xp 시절)과도 호환되도록 값이 없으면 환산해서 쓴다
+  var ph = (r.perHourStudy !== undefined) ? r.perHourStudy
+         : (r.perMinStudy !== undefined ? r.perMinStudy*60 : 100);
+  var pm = (r.perMinRemain !== undefined) ? r.perMinRemain
+         : (r.perMinStudy !== undefined ? r.perMinStudy : 1);
+  return Math.floor(sec/3600)*ph + Math.floor((sec%3600)/60)*pm;
+}
 function xpOf(u, range){
-  var r = S.data.xpRule || { perMinStudy:1, perChat:1 };
+  var r = (S.data && S.data.xpRule) || {};
   var s = sumRange(u, range);
-  var raw = Math.floor(s.sec/60) * (r.perMinStudy||1) + s.chat * (r.perChat||1);
+  var raw = studyXp(s.sec) + s.chat * (r.perChat!==undefined ? r.perChat : 1);
   return Math.max(0, Math.floor(raw * warnRate(u.warnings)) + s.bonus);
 }
 function metric(u, kind, range){
@@ -745,12 +757,13 @@ function renderMembers(){
   $("memSub").textContent = "전체 " + us.length + "명 중 " + shown.length + "명 표시";
   $("memBody").innerHTML = makeTable(
     [{t:"멤버"},{t:"역할"},{t:"누적 공부",num:1},{t:"XP",num:1},{t:"출석",num:1},
-     {t:"경고",num:1},{t:"최근 활동",num:1}],
+     {t:"연속 인증",num:1},{t:"경고",num:1},{t:"최근 활동",num:1}],
     shown.map(function(u){
       var w = u.warnings||0;
       return [
         nameCell(u), roleBadge(u.role), hm(u.totalSec), nf(xpOf(u,"all"))+" xp",
         nf(u.attendance)+"일",
+        (u.certStreak||0)+"일차",
         w > 0 ? '<span style="color:var(--bad)">'+nf(w)+'</span>' : '<span class="muted">0</span>',
         '<span class="muted">'+esc(when(u.lastChat))+'</span>'
       ];
@@ -867,6 +880,10 @@ function openUser(uid){
   h += '</div></div>';
 
   h += '<div class="card" style="box-shadow:none"><h2>기타</h2><div class="kv">'+
+    kv("연속 출석", (u.attendStreak||0)+"일차") +
+    kv("연속 인증", (u.certStreak||0)+"일차") +
+    kv("오늘 미니게임", (u.gameToday||0) +
+       (u.gameLimit>0 ? " / "+u.gameLimit+"회" : "회 (제한 없음)")) +
     kv("최고 기록", best.v ? (best.d+" · "+hm(best.v)) : "없음") +
     kv("경고", nf(u.warnings) + " / " + (S.data.warningMax||5)) +
     kv("마지막 대화", when(u.lastChat)) +
@@ -1118,19 +1135,21 @@ function boot(){
   };
 
   $("csvUsers").onclick = function(){
-    var rows = [["닉네임","역할","누적공부(초)","누적공부","인증횟수","채팅","출석","경고","보너스XP","누적XP","식별자"]];
+    var rows = [["닉네임","역할","누적공부(초)","누적공부","인증횟수","채팅","출석",
+                 "연속출석","연속인증","경고","보너스XP","누적XP","식별자"]];
     users().forEach(function(u){
       rows.push([u.name, ROLE[u.role].n, u.totalSec, hm(u.totalSec), u.totalCert, u.totalChat,
-                 u.attendance, u.warnings, u.bonusXp, xpOf(u,"all"), u.hash||u.uid]);
+                 u.attendance, u.attendStreak||0, u.certStreak||0,
+                 u.warnings, u.bonusXp, xpOf(u,"all"), u.hash||u.uid]);
     });
     csv(rows, "멤버종합_"+dstr(0)+".csv");
   };
   $("csvDaily").onclick = function(){
-    var rows = [["날짜","닉네임","공부(초)","인증","채팅","보너스XP"]];
+    var rows = [["날짜","닉네임","공부(초)","인증","채팅","보너스XP","미니게임"]];
     users().forEach(function(u){
       Object.keys(u.daily||{}).sort().forEach(function(d){
         var x = u.daily[d];
-        rows.push([d, u.name, x[0], x[1], x[2], x[3]]);
+        rows.push([d, u.name, x[0], x[1], x[2], x[3], x[4]||0]);
       });
     });
     csv(rows, "날짜별기록_"+dstr(0)+".csv");
